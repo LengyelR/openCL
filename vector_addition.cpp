@@ -19,7 +19,7 @@ int VectorAddition::setupCL()
 
 	bufA=clCreateBuffer(context, CL_MEM_READ_ONLY, datasize, NULL, &status);
 	bufB=clCreateBuffer(context, CL_MEM_READ_ONLY, datasize, NULL, &status);
-    bufC=clCreateBuffer(context, CL_MEM_WRITE_ONLY, datasize, NULL, &status);
+    	bufC=clCreateBuffer(context, CL_MEM_WRITE_ONLY, datasize, NULL, &status);
 
 	clEnqueueWriteBuffer(cmdQueue, bufA, CL_FALSE, 0, datasize, A, 0, NULL, NULL);
 	clEnqueueWriteBuffer(cmdQueue, bufB, CL_FALSE, 0, datasize, B, 0, NULL, NULL);
@@ -36,25 +36,18 @@ void VectorAddition::runCLKernels()
 	"                 __global int *C)                  \n"
 	"{                                                       \n"
 	"                                                         \n"
-	" // Get the work-item’s unique ID           \n"
 	" int idx=get_global_id(0);                     \n"
 	"                                                         \n"
-	" // Add the corresponding locations of     \n"
-	" // ‘A’ and ‘B’, and store the result in ‘C’. \n"
 	"C[idx]=A[idx]+B[idx];                           \n"
 	"}                                                       \n"
 	;
-
-	 // Create a program with source code
-    program = clCreateProgramWithSource(context, 1, (const char**)&programSource, NULL, &status);      
-    // Build (compile) the program for the device
-    clBuildProgram(program, numDevices, devices,  NULL, NULL, NULL);
-        
+	program = clCreateProgramWithSource(context, 1, (const char**)&programSource, NULL, &status);      
+	clBuildProgram(program, numDevices, devices,  NULL, NULL, NULL);
+		        
 	kernel=clCreateKernel(program, "vectoradd", &status);
-
 	clSetKernelArg(kernel, 0, sizeof(cl_mem), &bufA);
-    clSetKernelArg(kernel, 1, sizeof(cl_mem), &bufB);
-    clSetKernelArg(kernel, 2, sizeof(cl_mem), &bufC);
+	clSetKernelArg(kernel, 1, sizeof(cl_mem), &bufB);
+	clSetKernelArg(kernel, 2, sizeof(cl_mem), &bufC);
 
 	size_t globalWorkSize[1];
 	globalWorkSize[0]=elements;
@@ -64,6 +57,7 @@ void VectorAddition::runCLKernels()
 
 	clEnqueueReadBuffer(cmdQueue, bufC, CL_TRUE, 0, datasize, C, 0, NULL, NULL);
 }
+
 void VectorAddition::printPlatformInfo()
 {
 	clGetPlatformInfo(platforms[0], CL_PLATFORM_PROFILE, NULL, profile, &size); 
@@ -78,7 +72,7 @@ void VectorAddition::printPlatformInfo()
 
 	printf("Platform Informations:\n");
 	printf("(Status now: %d)\n", status);
-    printf("Profle: %s\n",profile);
+	printf("Profle: %s\n",profile);
 	printf("Platform Version: %s\n",platform_version);
 
 }
@@ -120,7 +114,7 @@ void VectorAddition::printDeviceInfo()
 
 void VectorAddition::checkError()
 {
-	int result=1;
+    int result=1;
     for(int i=0; i<elements; i++) {
         if(C[i] != i+i) {
             result=0;
